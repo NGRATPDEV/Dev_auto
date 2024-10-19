@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fichiers PDF - Infos Trafic</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            text-align: center;
+        }
+        .pdf-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .pdf-container a {
+            margin: 10px;
+            font-size: 18px;
+            text-decoration: none;
+            color: blue;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Fichiers PDF des sous-pages</h1>
+    <div class="pdf-container" id="pdf-container">
+        <!-- Les fichiers PDF seront affichés ici -->
+    </div>
+
+    <script>
+        const subPages = [
+            'https://www.irigo.fr/se-deplacer/lignes-et-horaires/ligne-bus-a',
+            'https://www.irigo.fr/se-deplacer/lignes-et-horaires/ligne-bus-b',
+            'https://www.irigo.fr/se-deplacer/lignes-et-horaires/ligne-bus-c',
+            'https://www.irigo.fr/se-deplacer/lignes-et-horaires/ligne-bus-1',
+            'https://www.irigo.fr/se-deplacer/lignes-et-horaires/ligne-bus-2',
+            'https://www.irigo.fr/se-deplacer/lignes-et-horaires/ligne-bus-3',
+            'https://www.irigo.fr/se-deplacer/lignes-et-horaires/ligne-bus-4',
+            'https://www.irigo.fr/se-deplacer/lignes-et-horaires/ligne-bus-5',
+            'https://www.irigo.fr/se-deplacer/lignes-et-horaires/ligne-bus-6',
+            'https://www.irigo.fr/se-deplacer/lignes-et-horaires/ligne-bus-7',
+            'https://www.irigo.fr/se-deplacer/lignes-et-horaires/ligne-bus-8',
+            'https://www.irigo.fr/se-deplacer/lignes-et-horaires/ligne-bus-9',
+            'https://www.irigo.fr/se-deplacer/lignes-et-horaires/ligne-bus-10',
+            'https://www.irigo.fr/se-deplacer/lignes-et-horaires/ligne-bus-11',
+            'https://www.irigo.fr/se-deplacer/lignes-et-horaires/ligne-bus-30',
+            'https://www.irigo.fr/se-deplacer/lignes-et-horaires/ligne-bus-33',
+            'https://www.irigo.fr/se-deplacer/lignes-et-horaires/ligne-bus-105',
+            'https://www.irigo.fr/se-deplacer/lignes-et-horaires/ligne-bus-nuit',
+            // Ajoutez d'autres sous-pages ici
+        ];
+
+        const pdfLinks = new Set();  // Utiliser un Set pour éliminer les doublons
+
+        async function fetchPDFsFromPage(url) {
+            try {
+                const response = await fetch(url);
+                const pageText = await response.text();
+
+                // Analyse du contenu de la page pour trouver les fichiers PDF
+                const regex = /href="([^"]+\.pdf)"/g;
+                let match;
+                while ((match = regex.exec(pageText)) !== null) {
+                    // Ajouter uniquement les fichiers PDF dans le Set
+                    pdfLinks.add(match[1]);
+                }
+            } catch (error) {
+                console.error(`Erreur lors de la récupération de la page ${url}: `, error);
+            }
+        }
+
+        async function fetchAllPDFs() {
+            // Boucle sur toutes les sous-pages
+            for (let page of subPages) {
+                await fetchPDFsFromPage(page);
+            }
+
+            // Maintenant, on affiche les fichiers PDF uniques
+            displayPDFs();
+        }
+
+        function displayPDFs() {
+            const pdfContainer = document.getElementById('pdf-container');
+            pdfLinks.forEach(link => {
+                // Pour chaque lien, créer un élément <a> qui redirige vers le PDF
+                const a = document.createElement('a');
+                a.href = link;
+                a.textContent = `Télécharger le PDF: ${link}`;
+                a.target = "_blank";  // Ouvrir dans un nouvel onglet
+                pdfContainer.appendChild(a);
+            });
+        }
+
+        // Appeler la fonction pour récupérer et afficher les PDF au chargement de la page
+        fetchAllPDFs();
+    </script>
+
+</body>
+</html>
